@@ -95,7 +95,7 @@
       android:id="@+id/registerbut"
       android:layout_width="150dp"
       android:layout_height="50dp"
-      android:layout_marginTop="4dp"
+      android:layout_marginTop="12dp"
       android:backgroundTint="@color/black"
       android:elevation="6dp"
       android:stateListAnimator="@animator/button_elevation"

@@ -22,6 +22,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Objects;
+
 public class Register extends AppCompatActivity {
     private TextInputEditText email_text,password_text;
     private Button login_button;
@@ -29,16 +31,7 @@ public class Register extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
     private TextView nav_register;
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Intent it = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(it);
-            finish();
-        }
-    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +61,21 @@ public class Register extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
-                        Toast.makeText(Register.this, "Registration Succesful.", Toast.LENGTH_SHORT).show();
-                        Intent it = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(it);
-                        finish();
+                        Objects.requireNonNull(mAuth.getCurrentUser()).sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()) {
+                                    Toast.makeText(getApplicationContext(), "Check your inbox for email verification", Toast.LENGTH_SHORT).show();
+                                    Intent it = new Intent(getApplicationContext(), Login.class);
+                                    startActivity(it);
+                                    finish();
+                                }else{
+                                    Toast.makeText(Register.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     } else {
-                        Toast.makeText(Register.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Register.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
