@@ -9,8 +9,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +38,7 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
     private TextView nav_register;
+    private TextView reset_password;
     private ImageButton google_icon;
     private static final int REQ_ONE_TAP = 2;
     private GoogleSignInOptions gso;
@@ -71,9 +70,11 @@ public class Login extends AppCompatActivity {
         nav_register=findViewById(R.id.textView);
         login_button=findViewById(R.id.loginbutton);
         google_icon=findViewById(R.id.google);
+        reset_password=findViewById(R.id.reset);
         login_button.setOnClickListener(v -> login());
         nav_register.setOnClickListener(v -> registerpage());
         google_icon.setOnClickListener(v ->googleauth());
+        reset_password.setOnClickListener(v -> Resetpassword());
 
         gso=new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -100,7 +101,7 @@ public class Login extends AppCompatActivity {
                             Toast.makeText(Login.this,"Please complete email verification",Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -143,6 +144,24 @@ public class Login extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void Resetpassword(){
+        email=String.valueOf(email_text.getText());
+            if(!email.isEmpty()){
+            mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()){
+                        Toast.makeText(Login.this,"Check your email inbox to reset password",Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(Login.this, Objects.requireNonNull(task.getException()).getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }else{
+                Toast.makeText(Login.this,"email field can't be empty",Toast.LENGTH_SHORT).show();
+            }
     }
     private void registerpage(){
         Intent it=new Intent(getApplicationContext(), Register.class);
